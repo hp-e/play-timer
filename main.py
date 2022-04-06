@@ -14,6 +14,12 @@ elapsed = 0
 initList()
 reset()
 
+input.on_button_pressed(Button.A, on_button_pressed_a)
+input.on_button_pressed(Button.AB, on_button_pressed_ab)
+input.on_button_pressed(Button.B, on_button_pressed_b)
+
+loops.every_interval(1000, on_every_interval)
+
 def on_button_pressed_a():
     global minutes, remaining_minutes, timer_state, timer_stopped
 
@@ -25,7 +31,7 @@ def on_button_pressed_a():
 
         remaining_minutes = minutes
         render_screen()
-input.on_button_pressed(Button.A, on_button_pressed_a)
+
 
 def on_timer_end():
     global timer_state, timer_stopped
@@ -75,7 +81,7 @@ def on_button_pressed_ab():
     if timer_state != timer_stopped:                    
         stop_timer()
     
-input.on_button_pressed(Button.AB, on_button_pressed_ab)
+
 
 def on_button_pressed_b():
     global remaining_minutes, timer_state, timer_started, timer_paused, timer_stopped
@@ -86,7 +92,7 @@ def on_button_pressed_b():
     else:                
         timer_state = timer_paused
      
-input.on_button_pressed(Button.B, on_button_pressed_b)
+
 
 
 def set_default_values():
@@ -141,4 +147,3 @@ def on_every_interval():
         pause_timer()                    
         led.fade_in(300)
         
-loops.every_interval(1000, on_every_interval)

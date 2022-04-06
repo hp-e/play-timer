@@ -25,6 +25,54 @@ input.onButtonPressed(Button.A, function on_button_pressed_a() {
     }
     
 })
+input.onButtonPressed(Button.AB, function on_button_pressed_ab() {
+    
+    //  led.fade_in()
+    if (timer_state != timer_stopped) {
+        stop_timer()
+    }
+    
+})
+input.onButtonPressed(Button.B, function on_button_pressed_b() {
+    
+    led.fadeIn()
+    if (timer_state != timer_started) {
+        render_screen()
+        timer_state = timer_started
+    } else {
+        timer_state = timer_paused
+    }
+    
+})
+loops.everyInterval(1000, function on_every_interval() {
+    let x: number;
+    let y: number;
+    
+    if (timer_state == timer_started) {
+        elapsed = elapsed + 1
+        x = listX[remaining_minutes - 1]
+        y = listY[remaining_minutes - 1]
+        led.toggle(x, y)
+        if (elapsed == 60) {
+            elapsed = 0
+            remaining_minutes = remaining_minutes - 1
+            render_screen()
+        }
+        
+        if (remaining_minutes <= 0) {
+            timer_state = timer_stopped
+            on_timer_end()
+        }
+        
+    }
+    
+    if (timer_state == timer_paused) {
+        led.fadeOut(100)
+        pause_timer()
+        led.fadeIn(300)
+    }
+    
+})
 function on_timer_end() {
     
     timer_state = timer_stopped
@@ -69,25 +117,6 @@ function pause_timer() {
                     `)
 }
 
-input.onButtonPressed(Button.AB, function on_button_pressed_ab() {
-    
-    //  led.fade_in()
-    if (timer_state != timer_stopped) {
-        stop_timer()
-    }
-    
-})
-input.onButtonPressed(Button.B, function on_button_pressed_b() {
-    
-    led.fadeIn()
-    if (timer_state != timer_started) {
-        render_screen()
-        timer_state = timer_started
-    } else {
-        timer_state = timer_paused
-    }
-    
-})
 function set_default_values() {
     
     timer_state = timer_stopped
@@ -122,32 +151,3 @@ function initList() {
     }
 }
 
-loops.everyInterval(1000, function on_every_interval() {
-    let x: number;
-    let y: number;
-    
-    if (timer_state == timer_started) {
-        elapsed = elapsed + 1
-        x = listX[remaining_minutes - 1]
-        y = listY[remaining_minutes - 1]
-        led.toggle(x, y)
-        if (elapsed == 60) {
-            elapsed = 0
-            remaining_minutes = remaining_minutes - 1
-            render_screen()
-        }
-        
-        if (remaining_minutes <= 0) {
-            timer_state = timer_stopped
-            on_timer_end()
-        }
-        
-    }
-    
-    if (timer_state == timer_paused) {
-        led.fadeOut(100)
-        pause_timer()
-        led.fadeIn(300)
-    }
-    
-})
