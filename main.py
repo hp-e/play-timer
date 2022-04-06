@@ -1,10 +1,10 @@
-music.start_melody(music.built_in_melody(Melodies.BADDY),
-        MelodyOptions.ONCE_IN_BACKGROUND)
+# music.start_melody(music.built_in_melody(Melodies.BADDY),
+#         MelodyOptions.ONCE_IN_BACKGROUND)
 timer_started = 1
 timer_stopped = 0
 timer_paused = 2
 timer_state = timer_stopped
-
+# music.set_volume()
 remaining_minutes = 0
 minute_step = 5
 minutes = 10
@@ -21,8 +21,6 @@ sound = [131, 165, 196, 262, 294]
 def on_button_pressed_a():
     global minutes, remaining_minutes, presses
 
-    
-    tone = 131
     if timer_state == timer_stopped:
         if presses == 4:
             presses = 0
@@ -34,20 +32,10 @@ def on_button_pressed_a():
         remaining_minutes = minutes
         render_screen()
         music.play_tone(sound[presses], music.beat(BeatFraction.HALF))
-
-        # if minutes == 25:
-        #     minutes = minute_step
-        #     tone = 131
-        # else:
-            
-        #     tone = tone + 34
-        
-    
     
 input.on_button_pressed(Button.A, on_button_pressed_a)
 
-def on_button_pressed_ab():
-    # led.fade_in()
+def on_button_pressed_ab():    
     if timer_state != timer_stopped:
         stop_timer()
 input.on_button_pressed(Button.AB, on_button_pressed_ab)
@@ -76,54 +64,53 @@ def on_every_interval():
             elapsed = 0
             remaining_minutes = remaining_minutes - 1
             render_screen()
-            music.play_tone(131, music.beat(BeatFraction.HALF))
+            music.play_tone(131, music.beat(BeatFraction.SIXTEENTH))
         if remaining_minutes <= 0:
             timer_state = timer_stopped
             on_timer_end()
-    if timer_state == timer_paused:
-        led.fade_out(100)
+    if timer_state == timer_paused:        
         pause_timer()
-        led.fade_in(300)
 loops.every_interval(1000, on_every_interval)
 
 def on_timer_end():
     global timer_state
     timer_state = timer_stopped
-    led.fade_out()
-    basic.show_icon(IconNames.NO)
-    led.fade_in()
-    music.start_melody(music.built_in_melody(Melodies.WAWAWAWAA),
+    
+    music.start_melody(music.built_in_melody(Melodies.DADADADUM),
             MelodyOptions.ONCE_IN_BACKGROUND)
         
     for x2 in range(5):
-        led.fade_out()
-        basic.pause(500)
-        led.fade_in()
+        led.fade_out(200)
+        basic.show_icon(IconNames.NO)        
+        led.fade_in(300)
+
     reset()
 def stop_timer():
     global timer_state
     timer_state = timer_stopped
     basic.clear_screen()
     for x3 in range(3):
-        led.fade_out()
+        led.fade_out(200)
         basic.show_leds("""
             . . . . .
-                                . # # # .
-                                . # . # .
-                                . # # # .
-                                . . . . .
+            . # # # .
+            . # . # .
+            . # # # .
+            . . . . .
         """)
-        basic.pause(500)
-        led.fade_in()
+        # basic.pause(500)
+        led.fade_in(300)
     reset()
 def pause_timer():
+    led.fade_out(100)                    
     basic.show_leds("""
         . . . . .
-                                . # . # .
-                                . # . # .
-                                . # . # .
-                                . . . . .
+        . # . # .
+        . # . # .
+        . # . # .
+        . . . . .
     """)
+    led.fade_in(300)
 def set_default_values():
     global timer_state, remaining_minutes
     timer_state = timer_stopped

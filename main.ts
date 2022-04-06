@@ -1,8 +1,10 @@
-music.startMelody(music.builtInMelody(Melodies.Baddy), MelodyOptions.OnceInBackground)
+//  music.start_melody(music.built_in_melody(Melodies.BADDY),
+//          MelodyOptions.ONCE_IN_BACKGROUND)
 let timer_started = 1
 let timer_stopped = 0
 let timer_paused = 2
 let timer_state = timer_stopped
+//  music.set_volume()
 let remaining_minutes = 0
 let minute_step = 5
 let minutes = 10
@@ -14,14 +16,8 @@ let presses = 1
 initList()
 reset()
 sound = [131, 165, 196, 262, 294]
-//  if minutes == 25:
-//      minutes = minute_step
-//      tone = 131
-//  else:
-//      tone = tone + 34
 input.onButtonPressed(Button.A, function on_button_pressed_a() {
     
-    let tone = 131
     if (timer_state == timer_stopped) {
         if (presses == 4) {
             presses = 0
@@ -38,7 +34,6 @@ input.onButtonPressed(Button.A, function on_button_pressed_a() {
     
 })
 input.onButtonPressed(Button.AB, function on_button_pressed_ab() {
-    //  led.fade_in()
     if (timer_state != timer_stopped) {
         stop_timer()
     }
@@ -70,7 +65,7 @@ loops.everyInterval(1000, function on_every_interval() {
             elapsed = 0
             remaining_minutes = remaining_minutes - 1
             render_screen()
-            music.playTone(131, music.beat(BeatFraction.Half))
+            music.playTone(131, music.beat(BeatFraction.Sixteenth))
         }
         
         if (remaining_minutes <= 0) {
@@ -81,23 +76,18 @@ loops.everyInterval(1000, function on_every_interval() {
     }
     
     if (timer_state == timer_paused) {
-        led.fadeOut(100)
         pause_timer()
-        led.fadeIn(300)
     }
     
 })
 function on_timer_end() {
     
     timer_state = timer_stopped
-    led.fadeOut()
-    basic.showIcon(IconNames.No)
-    led.fadeIn()
-    music.startMelody(music.builtInMelody(Melodies.Wawawawaa), MelodyOptions.OnceInBackground)
+    music.startMelody(music.builtInMelody(Melodies.Dadadadum), MelodyOptions.OnceInBackground)
     for (let x2 = 0; x2 < 5; x2++) {
-        led.fadeOut()
-        basic.pause(500)
-        led.fadeIn()
+        led.fadeOut(200)
+        basic.showIcon(IconNames.No)
+        led.fadeIn(300)
     }
     reset()
 }
@@ -107,28 +97,30 @@ function stop_timer() {
     timer_state = timer_stopped
     basic.clearScreen()
     for (let x3 = 0; x3 < 3; x3++) {
-        led.fadeOut()
+        led.fadeOut(200)
         basic.showLeds(`
             . . . . .
-                                . # # # .
-                                . # . # .
-                                . # # # .
-                                . . . . .
+            . # # # .
+            . # . # .
+            . # # # .
+            . . . . .
         `)
-        basic.pause(500)
-        led.fadeIn()
+        //  basic.pause(500)
+        led.fadeIn(300)
     }
     reset()
 }
 
 function pause_timer() {
+    led.fadeOut(100)
     basic.showLeds(`
         . . . . .
-                                . # . # .
-                                . # . # .
-                                . # . # .
-                                . . . . .
+        . # . # .
+        . # . # .
+        . # . # .
+        . . . . .
     `)
+    led.fadeIn(300)
 }
 
 function set_default_values() {
