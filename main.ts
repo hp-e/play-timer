@@ -1,32 +1,43 @@
+music.startMelody(music.builtInMelody(Melodies.Baddy), MelodyOptions.OnceInBackground)
 let timer_started = 1
 let timer_stopped = 0
 let timer_paused = 2
 let timer_state = timer_stopped
-let fade = "in"
 let remaining_minutes = 0
 let minute_step = 5
 let minutes = 10
 let listX : number[] = []
 let listY : number[] = []
+let sound : number[] = []
 let elapsed = 0
+let presses = 1
 initList()
 reset()
+sound = [131, 165, 196, 262, 294]
+//  if minutes == 25:
+//      minutes = minute_step
+//      tone = 131
+//  else:
+//      tone = tone + 34
 input.onButtonPressed(Button.A, function on_button_pressed_a() {
     
+    let tone = 131
     if (timer_state == timer_stopped) {
-        if (minutes == 25) {
+        if (presses == 4) {
+            presses = 0
             minutes = minute_step
         } else {
+            presses = presses + 1
             minutes = minutes + minute_step
         }
         
         remaining_minutes = minutes
         render_screen()
+        music.playTone(sound[presses], music.beat(BeatFraction.Half))
     }
     
 })
 input.onButtonPressed(Button.AB, function on_button_pressed_ab() {
-    
     //  led.fade_in()
     if (timer_state != timer_stopped) {
         stop_timer()
@@ -39,8 +50,10 @@ input.onButtonPressed(Button.B, function on_button_pressed_b() {
     if (timer_state != timer_started) {
         render_screen()
         timer_state = timer_started
+        music.startMelody(music.builtInMelody(Melodies.PowerUp), MelodyOptions.OnceInBackground)
     } else {
         timer_state = timer_paused
+        music.startMelody(music.builtInMelody(Melodies.Funk), MelodyOptions.OnceInBackground)
     }
     
 })
@@ -57,6 +70,7 @@ loops.everyInterval(1000, function on_every_interval() {
             elapsed = 0
             remaining_minutes = remaining_minutes - 1
             render_screen()
+            music.playTone(131, music.beat(BeatFraction.Half))
         }
         
         if (remaining_minutes <= 0) {
@@ -79,8 +93,8 @@ function on_timer_end() {
     led.fadeOut()
     basic.showIcon(IconNames.No)
     led.fadeIn()
-    music.playMelody("C5 A B G A F G E ", 120)
-    for (let x = 0; x < 5; x++) {
+    music.startMelody(music.builtInMelody(Melodies.Wawawawaa), MelodyOptions.OnceInBackground)
+    for (let x2 = 0; x2 < 5; x2++) {
         led.fadeOut()
         basic.pause(500)
         led.fadeIn()
@@ -92,15 +106,15 @@ function stop_timer() {
     
     timer_state = timer_stopped
     basic.clearScreen()
-    for (let x = 0; x < 3; x++) {
+    for (let x3 = 0; x3 < 3; x3++) {
         led.fadeOut()
         basic.showLeds(`
-                    . . . . .
-                    . # # # .
-                    . # . # .
-                    . # # # .
-                    . . . . .
-                `)
+            . . . . .
+                                . # # # .
+                                . # . # .
+                                . # # # .
+                                . . . . .
+        `)
         basic.pause(500)
         led.fadeIn()
     }
@@ -109,12 +123,12 @@ function stop_timer() {
 
 function pause_timer() {
     basic.showLeds(`
-                        . . . . .
-                        . # . # .
-                        . # . # .
-                        . # . # .
-                        . . . . .
-                    `)
+        . . . . .
+                                . # . # .
+                                . # . # .
+                                . # . # .
+                                . . . . .
+    `)
 }
 
 function set_default_values() {
@@ -125,13 +139,13 @@ function set_default_values() {
 
 function render_screen() {
     basic.clearScreen()
-    let x = 0
-    let y = 0
+    let x4 = 0
+    let y2 = 0
     let minIdx = remaining_minutes - 1
     for (let index = 0; index < remaining_minutes; index++) {
-        x = listX[index]
-        y = listY[index]
-        led.plot(x, y)
+        x4 = listX[index]
+        y2 = listY[index]
+        led.plot(x4, y2)
     }
 }
 
@@ -142,11 +156,10 @@ function reset() {
 }
 
 function initList() {
-    
-    for (let y = 0; y < 5; y++) {
-        for (let x = 0; x < 5; x++) {
-            listX.push(x)
-            listY.push(y)
+    for (let y3 = 0; y3 < 5; y3++) {
+        for (let x5 = 0; x5 < 5; x5++) {
+            listX.push(x5)
+            listY.push(y3)
         }
     }
 }
