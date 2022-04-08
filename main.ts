@@ -32,7 +32,8 @@ input.onButtonPressed(Button.A, () => {
         if (_minutes >= MAX_ALLOWED_MINUTES) {
             _minutes = _minuteStep;
         } else {
-            _minutes += _minuteStep;
+            // add reminder if step is 5 and modulus is not 0
+            _minutes += _minutes % 5 > 0 && _minuteStep == MAX_STEP ? 5 - (_minutes % 5) : _minuteStep;            
         }
 
         _remainingMinutes = _minutes
@@ -48,23 +49,21 @@ function toggleStepperValue() {
     basic.clearScreen()
 
     if (_minuteStep == MAX_STEP) {
-
-    for (let x = 0; x <= _minuteStep - 1; x++) {
-        led.plot(x, plotOnY)        
-    }
+        for (let x = 0; x <= _minuteStep - 1; x++) {
+            led.plot(x, plotOnY)        
+        }
     } else {
         led.plot(plotOnY, plotOnY)
     }
 
-    blinkLeds()
+    blinkLeds(3)
 
-    
     renderScreen();
 }
 
 function initList() {
-    for (let y = 0; y < 5; y++) {
-        for (let x = 0; x < 5; x++) {
+    for (let y = 0; y < MAX_STEP; y++) {
+        for (let x = 0; x < MAX_STEP; x++) {
             _listX.push(x)
             _listY.push(y)
         }
@@ -114,7 +113,7 @@ function startTimer() {
 function onTimerEnd() {
     
     _timerState = TimerState.stopped
-    music.startMelody(music.builtInMelody(Melodies.Dadadadum), MelodyOptions.OnceInBackground)
+    music.startMelody(music.builtInMelody(Melodies.Wawawawaa), MelodyOptions.OnceInBackground)
     basic.showIcon(IconNames.No)
     
     blinkLeds(5)
