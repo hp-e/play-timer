@@ -1,56 +1,86 @@
-let elapsed = 0
-let listY : number[] = []
-let listX : number[] = []
-let sound : number[] = []
-let timer_stopped = 0
-let timer_started = 1
-let timer_paused = 2
-let timer_state = timer_stopped
-let minute_step = 5
-let minutes = 10
-let remaining_minutes = minutes
-let presses = 1
+const BUTTON_LONG_CLICK = 4;
+const BUTTON_DOUBLE_CLICK = 6;
+const MAX_ALLOWED_MINUTES = 25;
+const MAX_STEP = 5
+const MIN_STEP = 1
+
+enum TimerState {
+    stopped,
+    started,
+    paused
+}
+
+let _elapsed = 0
+let _listY : number[] = []
+let _listX : number[] = []
+
+let _timerState: TimerState = TimerState.stopped; 
+let _minuteStep = 5
+
+let _minutes = 10
+let _remainingMinutes = _minutes
+
 initList()
 reset()
-sound = [131, 165, 196, 262, 294]
-input.onButtonPressed(Button.A, function on_button_pressed_a() {
-    
-    if (timer_state == timer_stopped) {
-        if (presses == 4) {
-            presses = 0
-            minutes = minute_step
-        } else {
-            presses = presses + 1
-            minutes = minutes + minute_step
-        }
+
+control.onEvent(EventBusSource.MICROBIT_ID_BUTTON_A, BUTTON_LONG_CLICK, toggleStepperValue)
+
+input.onButtonPressed(Button.A, () => {
+ 
+    if (_timerState == TimerState.stopped) {
         
-        remaining_minutes = minutes
-        render_screen()
-        music.playTone(sound[presses], music.beat(BeatFraction.Half))
+        if (_minutes >= MAX_ALLOWED_MINUTES) {
+            _minutes = _minuteStep;
+        } else {
+            _minutes += _minuteStep;
+        }
+
+        _remainingMinutes = _minutes
+        renderScreen()
     }
-    
 })
+
+function toggleStepperValue() {
+    let plotOnY = 2;
+
+    _minuteStep = _minuteStep == MAX_STEP ? MIN_STEP : MAX_STEP;
+        
+    basic.clearScreen()
+
+    if (_minuteStep == MAX_STEP) {
+
+    for (let x = 0; x <= _minuteStep - 1; x++) {
+        led.plot(x, plotOnY)        
+    }
+    } else {
+        led.plot(plotOnY, plotOnY)
+    }
+
+    blinkLeds()
+
+    
+    renderScreen();
+}
+
 function initList() {
     for (let y = 0; y < 5; y++) {
         for (let x = 0; x < 5; x++) {
-            listX.push(x)
-            listY.push(y)
+            _listX.push(x)
+            _listY.push(y)
         }
     }
 }
 
 function reset() {
     basic.clearScreen()
-    set_default_values()
-    render_screen()
+    setDefaultValues()
+    renderScreen()
 }
 
-function stop_timer() {
+function stopTimer() {
     
-    timer_state = timer_stopped
+    _timerState = TimerState.stopped
     basic.clearScreen()
-    for (let index = 0; index < 3; index++) {
-        led.fadeOut(200)
         basic.showLeds(`
             . . . . .
             . # # # .
@@ -58,94 +88,98 @@ function stop_timer() {
             . # # # .
             . . . . .
         `)
-        led.fadeIn(300)
-    }
+    blinkLeds()
     reset()
 }
 
-function pause_timer() {
+function blinkLeds(times: number = 3, msout: number = 300, msin: number = 500) {
+    for (let index = 0; index <= times; index++) {
+        led.fadeOut(msout)
+        led.fadeIn(msin)
+    }
+}
+function pauseTimer() {
     
-    timer_state = timer_paused
+    _timerState = TimerState.paused
     music.startMelody(music.builtInMelody(Melodies.Funk), MelodyOptions.OnceInBackground)
 }
 
-function start_timer() {
+function startTimer() {
     
-    render_screen()
-    timer_state = timer_started
+    renderScreen()
+    _timerState = TimerState.started
     music.startMelody(music.builtInMelody(Melodies.PowerUp), MelodyOptions.OnceInBackground)
 }
 
-function on_timer_end() {
+function onTimerEnd() {
     
-    timer_state = timer_stopped
+    _timerState = TimerState.stopped
     music.startMelody(music.builtInMelody(Melodies.Dadadadum), MelodyOptions.OnceInBackground)
-    for (let index = 0; index < 5; index++) {
-        led.fadeOut(200)
-        basic.showIcon(IconNames.No)
-        led.fadeIn(300)
-    }
+    basic.showIcon(IconNames.No)
+    
+    blinkLeds(5)
+
     reset()
 }
 
-input.onButtonPressed(Button.AB, function on_button_pressed_ab() {
-    if (timer_state != timer_stopped) {
-        stop_timer()
+input.onButtonPressed(Button.AB, () => {
+    if (_timerState != TimerState.stopped) {
+        stopTimer()
     }
     
 })
-input.onButtonPressed(Button.B, function on_button_pressed_b() {
+input.onButtonPressed(Button.B, () => {
     
     led.fadeIn()
-    if (timer_state != timer_started) {
-        start_timer()
+    if (_timerState != TimerState.started) {
+        startTimer()
     } else {
-        pause_timer()
+        pauseTimer()
     }
     
 })
-function set_default_values() {
+function setDefaultValues() {
     
-    timer_state = timer_stopped
-    remaining_minutes = minutes
+    _timerState = TimerState.stopped
+    _remainingMinutes = _minutes
 }
 
-function render_screen() {
+function renderScreen() {
     basic.clearScreen()
     let x = 0
     let y = 0
-    let minIdx = remaining_minutes - 1
-    for (let index = 0; index < remaining_minutes; index++) {
-        x = listX[index]
-        y = listY[index]
+    let minIdx = _remainingMinutes - 1
+    for (let index = 0; index < _remainingMinutes; index++) {
+        x = _listX[index]
+        y = _listY[index]
         led.plot(x, y)
     }
 }
 
-loops.everyInterval(1000, function on_every_interval() {
+loops.everyInterval(1000, () => {
     let x: number;
     let y: number;
     
-    if (timer_state == timer_started) {
-        elapsed = elapsed + 1
-        x = listX[remaining_minutes - 1]
-        y = listY[remaining_minutes - 1]
+    if (_timerState == TimerState.started) {
+        _elapsed = _elapsed + 1
+        x = _listX[_remainingMinutes - 1]
+        y = _listY[_remainingMinutes - 1]
         led.toggle(x, y)
-        if (elapsed == 60) {
-            elapsed = 0
-            remaining_minutes = remaining_minutes - 1
-            render_screen()
+        if (_elapsed == 60) {
+            _elapsed = 0
+            _remainingMinutes = _remainingMinutes - 1
+            renderScreen()
             music.playTone(131, music.beat(BeatFraction.Sixteenth))
         }
         
-        if (remaining_minutes <= 0) {
-            timer_state = timer_stopped
-            on_timer_end()
+        if (_remainingMinutes <= 0) {
+            _timerState = TimerState.stopped
+            onTimerEnd()
         }
         
     }
     
-    if (timer_state == timer_paused) {
+    if (_timerState == TimerState.paused) {
         led.fadeOut(100)
         basic.showLeds(`
             . . . . .
