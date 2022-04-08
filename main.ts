@@ -23,7 +23,25 @@ let _remainingMinutes = _minutes
 initList()
 reset()
 
-control.onEvent(EventBusSource.MICROBIT_ID_BUTTON_A, BUTTON_LONG_CLICK, toggleStepperValue)
+control.onEvent(EventBusSource.MICROBIT_ID_BUTTON_A, BUTTON_LONG_CLICK, () => {
+    let plotOnY = 2;
+
+    _minuteStep = _minuteStep == MAX_STEP ? MIN_STEP : MAX_STEP;
+
+    basic.clearScreen()
+
+    if (_minuteStep == MAX_STEP) {
+        for (let x = 0; x <= _minuteStep - 1; x++) {
+            led.plot(x, plotOnY)
+        }
+    } else {
+        led.plot(plotOnY, plotOnY)
+    }
+
+    blinkLeds(3)
+
+    renderScreen();
+})
 
 input.onButtonPressed(Button.A, () => {
  
@@ -40,26 +58,6 @@ input.onButtonPressed(Button.A, () => {
         renderScreen()
     }
 })
-
-function toggleStepperValue() {
-    let plotOnY = 2;
-
-    _minuteStep = _minuteStep == MAX_STEP ? MIN_STEP : MAX_STEP;
-        
-    basic.clearScreen()
-
-    if (_minuteStep == MAX_STEP) {
-        for (let x = 0; x <= _minuteStep - 1; x++) {
-            led.plot(x, plotOnY)        
-        }
-    } else {
-        led.plot(plotOnY, plotOnY)
-    }
-
-    blinkLeds(3)
-
-    renderScreen();
-}
 
 function initList() {
     for (let y = 0; y < MAX_STEP; y++) {
