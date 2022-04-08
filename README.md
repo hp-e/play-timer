@@ -1,6 +1,17 @@
 
 > Open this page at [https://hp-e.github.io/play-timer/](https://hp-e.github.io/play-timer/)
 
+## How to use
+
+Clicking the button A will increase number of minutes with eiter 5 or 1 minutes, depended on minute_step setting.
+Press and hold button A to toggle between 5 and 1 minutes for the minute_step setting.
+
+Start the timer by pressing the B- button. Pressing the B- button again will pause the timer, press again and it starts again.
+Press and hold the B- button to stop the timer and go back to start. This will not play the endTimer function.
+
+Click AB at the same time to forcefully end the timer and notify that the end is near.
+Press and hold the AB- button to toggle sound on/of
+
 ## Use as Extension
 
 This repository can be added as an **extension** in MakeCode.
