@@ -157,6 +157,7 @@ function setDefaultValues() {
     
     _timerState = TimerState.stopped
     _remainingMinutes = _minutes
+    _elapsed = 0
 }
 
 function renderScreen() {
