@@ -1,8 +1,8 @@
 const BUTTON_LONG_CLICK = 4;
-const BUTTON_DOUBLE_CLICK = 6;
 const MAX_ALLOWED_MINUTES = 25;
 const MAX_STEP = 5
 const MIN_STEP = 1
+const EVENT_TIMER_SOURCE = 90000;
 
 enum TimerState {
     stopped,
@@ -10,6 +10,7 @@ enum TimerState {
     paused
 }
 
+let _enableSound = true;
 let _elapsed = 0
 let _listY : number[] = []
 let _listX : number[] = []
@@ -22,6 +23,19 @@ let _remainingMinutes = _minutes
 
 initList()
 reset()
+
+control.onEvent(EventBusSource.MICROBIT_ID_BUTTON_AB, BUTTON_LONG_CLICK, () => {    
+    _enableSound = !_enableSound
+    basic.showNumber(+_enableSound);
+    playMelody(Melodies.JumpUp);
+    blinkLeds(3)
+    renderScreen()
+})
+
+control.onEvent(EventBusSource.MICROBIT_ID_BUTTON_B, BUTTON_LONG_CLICK, stopTimer)
+
+input.onButtonPressed(Button.AB, endTimer)
+input.onButtonPressed(Button.B, toggleTimer)
 
 control.onEvent(EventBusSource.MICROBIT_ID_BUTTON_A, BUTTON_LONG_CLICK, () => {
     let plotOnY = 2;
@@ -50,7 +64,7 @@ input.onButtonPressed(Button.A, () => {
         if (_minutes >= MAX_ALLOWED_MINUTES) {
             _minutes = _minuteStep;
         } else {
-            // add reminder if step is 5 and modulus is not 0
+            // add remainer if step is 5 and modulus is not 0
             _minutes += _minutes % 5 > 0 && _minuteStep == MAX_STEP ? 5 - (_minutes % 5) : _minuteStep;            
         }
 
@@ -75,18 +89,19 @@ function reset() {
 }
 
 function stopTimer() {
-    
-    _timerState = TimerState.stopped
-    basic.clearScreen()
-        basic.showLeds(`
-            . . . . .
-            . # # # .
-            . # . # .
-            . # # # .
-            . . . . .
-        `)
-    blinkLeds()
-    reset()
+    if (_timerState != TimerState.stopped) {
+        _timerState = TimerState.stopped
+        basic.clearScreen()
+            basic.showLeds(`
+                . . . . .
+                . # # # .
+                . # . # .
+                . # # # .
+                . . . . .
+            `)
+        blinkLeds()
+        reset()
+    }
 }
 
 function blinkLeds(times: number = 3, msout: number = 300, msin: number = 500) {
@@ -96,45 +111,48 @@ function blinkLeds(times: number = 3, msout: number = 300, msin: number = 500) {
     }
 }
 function pauseTimer() {
-    
+    // control.raiseEvent(EVENT_TIMER_SOURCE, TimerState.paused) ;
     _timerState = TimerState.paused
-    music.startMelody(music.builtInMelody(Melodies.Funk), MelodyOptions.OnceInBackground)
+    playMelody(Melodies.Funk)
 }
 
-function startTimer() {
-    
+function startTimer() {    
     renderScreen()
     _timerState = TimerState.started
-    music.startMelody(music.builtInMelody(Melodies.PowerUp), MelodyOptions.OnceInBackground)
+    playMelody(Melodies.PowerUp)
 }
 
-function onTimerEnd() {
-    
-    _timerState = TimerState.stopped
-    music.startMelody(music.builtInMelody(Melodies.Wawawawaa), MelodyOptions.OnceInBackground)
-    basic.showIcon(IconNames.No)
-    
-    blinkLeds(5)
-
-    reset()
-}
-
-input.onButtonPressed(Button.AB, () => {
-    if (_timerState != TimerState.stopped) {
-        stopTimer()
+function playMelody(melody: Melodies) {
+    if (_enableSound) {
+        music.startMelody(music.builtInMelody(melody), MelodyOptions.OnceInBackground)
     }
-    
-})
-input.onButtonPressed(Button.B, () => {
-    
+}
+
+function playSound(frequency: number) {
+    if (_enableSound) {
+        music.playTone(frequency, music.beat(BeatFraction.Sixteenth))
+    }
+}
+
+function toggleTimer() {
     led.fadeIn()
     if (_timerState != TimerState.started) {
         startTimer()
     } else {
         pauseTimer()
     }
+}
+
+function endTimer() {
     
-})
+    _timerState = TimerState.stopped
+    playMelody(Melodies.Wawawawaa)
+    basic.showIcon(IconNames.No)
+    
+    blinkLeds(5)
+    reset()
+}
+
 function setDefaultValues() {
     
     _timerState = TimerState.stopped
@@ -166,12 +184,11 @@ loops.everyInterval(1000, () => {
             _elapsed = 0
             _remainingMinutes = _remainingMinutes - 1
             renderScreen()
-            music.playTone(131, music.beat(BeatFraction.Sixteenth))
+            playSound(131);
         }
         
-        if (_remainingMinutes <= 0) {
-            _timerState = TimerState.stopped
-            onTimerEnd()
+        if (_remainingMinutes <= 0) {            
+            endTimer()
         }
         
     }
